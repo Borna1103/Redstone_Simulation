@@ -32,6 +32,7 @@ C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\R
 C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\Redstone_Simulation.genruntimeconfig.cache
 C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\ref\Redstone_Simulation.dll
 C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\bin\Debug\net10.0\Redstone_Simulation.staticwebassets.runtime.json
-C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\elefhq94ol-{0}-f3xrbnihlt-f3xrbnihlt.gz
-C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\9zmlrapcmg-{0}-m3h77yt3ka-m3h77yt3ka.gz
-C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\cpsa1cwwg7-{0}-o7gwdn5ca6-o7gwdn5ca6.gz
+C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\Redstone_Simulation.sourcelink.json
+C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\elefhq94ol-{0}-urlvmbldua-urlvmbldua.gz
+C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\9zmlrapcmg-{0}-edrqu0dq4v-edrqu0dq4v.gz
+C:\Users\Borna\OneDrive\Documents\GitHub\Redstone_Simulation\obj\Debug\net10.0\compressed\cpsa1cwwg7-{0}-9hph84s0o5-9hph84s0o5.gz

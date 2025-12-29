@@ -15,6 +15,8 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    
+
     // Generate grid
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -28,10 +30,33 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     fetchInitialState();
-    setInterval(fetchInitialState(), TICK_MS);
-    
+    setInterval(fetchInitialState, TICK_MS);
 
-    
+    async function fetchInitialState() {
+        const res = await fetch('/api/simulation/tick', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }
+        );
+        
+        if (res.ok) {
+            updateGrid(await res.json());
+        }
+    }
+    // Clear grid
+    document.getElementById('clear-button').addEventListener('click', async () => {
+        const response = await fetch('/api/simulation/clear', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (!response.ok) return;
+
+        updateGrid(await response.json());
+    });
 
     // Place object
     grid.addEventListener('click', async (e) => {
@@ -99,17 +124,6 @@ window.addEventListener('DOMContentLoaded', () => {
             
         });
     }
-
-    
 });
 
 
-
-async function fetchInitialState() {
-    const res = await fetch('/api/simulation/state');
-    
-    if (res.ok) {
-        alert(JSON.stringify(await res.json()));
-        updateGrid(await res.json());
-    }
-}

@@ -61,6 +61,27 @@ namespace Redstone_Simulation.Controllers
             }
         }
 
+        [HttpPost("clear")]
+        public IActionResult ClearGrid()
+        {
+            
+            var currGrid = CurrentGridState();
+            for (int i = 0; i < currGrid.Count; i++)
+            {
+                currGrid[i] = new CellUpdate(currGrid[i].X, currGrid[i].Y, null, null, null, null);
+            }
+            _grid = new Grid(100, 100);
+            return Ok(currGrid);
+        }
+
+        [HttpPost("tick")]
+        public IActionResult Tick()
+        {
+            _grid.AdvanceTick();
+            return Ok(CurrentGridState());
+        }
+
+
         public List<CellUpdate> CurrentGridState()
         {
             var cells = new List<CellUpdate>();
@@ -79,13 +100,13 @@ namespace Redstone_Simulation.Controllers
                         obj.Shape.ToString(),
                         obj.Facing?.ToString(),
                         obj.Strength
-                    ));
-                    
+                    ));       
                 }
             }
-
             return cells;
         }
+
+        
 
     public record PlaceRequest(int X, int Y, string Type);
     public record RemoveRequest(int X, int Y);

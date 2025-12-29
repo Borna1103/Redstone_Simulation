@@ -9,6 +9,7 @@ namespace Redstone_Simulation.Models
         public int Rows { get; set; }
         public int Cols { get; set; }
         public IObject?[,] Cells { get; set; }
+        public long Tick { get; set; } = 0;
 
         public Grid(int rows, int cols)
         {
@@ -26,27 +27,16 @@ namespace Redstone_Simulation.Models
 
             Cells[x, y] = obj;
             
-
-            if (obj is Redstone rs)
+            UpdateGrid(x, y);
+            foreach (Direction d in Enum.GetValues(typeof(Direction)))
             {
-                UpdateGrid(x, y);
-
-                foreach (Direction d in Enum.GetValues(typeof(Direction)))
-                {
-                    var (dx, dy) = DirectionHelper.Offset(d);
-                    int nx = x + dx;
-                    int ny = y + dy;
-
-                    if (InBounds(nx, ny) && Cells[nx, ny] is Redstone neighbor)
-                    { 
-                        UpdateGrid(nx, ny);
-                    }
+                var (dx, dy) = DirectionHelper.Offset(d);
+                int nx = x + dx;
+                int ny = y + dy;
+                if (InBounds(nx, ny) && Cells[nx, ny] is Redstone neighbor)
+                { 
+                    UpdateGrid(nx, ny);
                 }
-            }
-
-            else if (obj is Torch)
-            {
-                PowerObjects(x,y, Strength: obj.Strength);
             }
         }
 
@@ -68,37 +58,67 @@ namespace Redstone_Simulation.Models
                 int ny = y + dy;
 
                 if (InBounds(nx, ny) && Cells[nx, ny] is Redstone neighbor)
-                {
+                { 
                     UpdateGrid(nx, ny);
                 }
             }
-            PropagateSignals();
         }
 
-        public void PowerObjects(int x, int y, int Strength)
+        private void PropagateFrom(int x, int y, int strength)
         {
-            var updates = new List<CellUpdate>();
-            while (Strength > 0)
+            var queue = new Queue<(int x, int y, int strength)>();
+            queue.Enqueue((x, y, strength));
+
+            while (queue.Count > 0)
             {
+                var (cx, cy, s) = queue.Dequeue();
+                if (s <= 0) continue;
+
                 foreach (Direction d in Enum.GetValues(typeof(Direction)))
                 {
                     var (dx, dy) = DirectionHelper.Offset(d);
-                    int nx = x + dx;
-                    int ny = y + dy;
+                    int nx = cx + dx;
+                    int ny = cy + dy;
 
-                    if (InBounds(nx, ny) && Cells[nx, ny] is IObject neighbor)
+                    if (!InBounds(nx, ny)) continue;
+                    if (Cells[nx, ny] is not Redstone rs) continue;
+
+                    if (rs.Strength < s - 1)
                     {
-                        if (neighbor.Strength < Strength - 1)
-                        {
-                            neighbor.Strength = Strength - 1;
-                            PowerObjects(nx, ny, neighbor.Strength);
-                        }
+                        rs.Strength = s - 1;
+                        queue.Enqueue((nx, ny, s - 1));
                     }
                 }
-                break; // Prevent infinite loop
             }
-            UpdateGrid(x, y);
-        } 
+        }
+
+        public void AdvanceTick()
+        {
+            Tick++;
+
+            // Reset non-torch strengths
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    if (Cells[r, c] is Redstone rs)
+                        rs.Strength = 0;
+                }
+            }
+
+            // Power from sources
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    if (Cells[r, c] is Torch)
+                        PropagateFrom(r, c, 15);
+                }
+            }
+        }
+
+
+        
 
         public bool InBounds(int x, int y)
         {
@@ -124,39 +144,7 @@ namespace Redstone_Simulation.Models
                     connections.Add(d);
                 }
             }
-            rs.Strength = highestStrength-1;
             rs.SetConnections(connections);
-            
-        }
-
-        
-
-        public void PropagateSignals()
-        {
-            for (int r = 0; r < Rows; r++)
-            {
-                for (int c = 0; c < Cols; c++)
-                {
-                    if (Cells[r, c] is not Torch) 
-                    {
-                        if (Cells[r, c] == null) continue;  
-                        Cells[r, c]!.Strength = 0;
-                    }
-                    
-                        
-                }
-            }
-
-            for (int r = 0; r < Rows; r++)
-            {
-                for (int c = 0; c < Cols; c++)
-                {
-                    if (Cells[r, c] is Torch torch)
-                    {
-                        PowerObjects(r, c, torch.Strength);
-                    }
-                }
-            }
         }
 
         
