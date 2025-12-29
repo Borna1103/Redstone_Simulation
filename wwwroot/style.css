@@ -1,0 +1,186 @@
+* {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    background-color: #f0f0f0;
+    font-family: system-ui;
+    text-align: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(100, 80px); 
+    grid-template-rows: repeat(100, 80px);
+    justify-content: center;
+    width: 100%;
+}
+
+.cell {
+    aspect-ratio: 1 / 1;
+    background-color: #eee;
+    border: 1px hidden ;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.05s;
+}
+
+.cell.redstone {
+    background-color: #eee;
+    --power: 0;
+}
+
+.cell.redstone::before,
+.cell.redstone::after {
+    content: '';
+    position: absolute;
+    background-color: rgb(calc(100 + var(--power) * 14), 0, 0);
+}
+
+.cell.redstone.idle::before {
+    width: 20%;
+    height: 20%;
+    top: 40%;
+    left: 40%;
+}
+
+/* Horizontal */
+.cell.redstone.straight.east::before,
+.cell.redstone.straight.west::before {
+    height: 20%;
+    width: 100%;
+    top: 40%;
+    left: 0;
+}
+
+/* Vertical */
+.cell.redstone.straight.north::before,
+.cell.redstone.straight.south::before {
+    width: 20%;
+    height: 100%;
+    left: 40%;
+    top: 0;
+}
+
+/* Corner */
+.cell.redstone.corner::before,
+.cell.redstone.corner::after {
+    width: 20%;
+    height: 40%;
+}
+
+.cell.redstone.corner::before {
+    left: 40%;
+    top: 0;
+}
+
+.cell.redstone.corner::after {
+    top: 40%;
+    left: 40%;
+    width: 60%;
+    height: 20%;
+}
+
+/* Rotate for orientation */
+.cell.redstone.corner.north { transform: rotate(270deg); }
+.cell.redstone.corner.south { transform: rotate(90deg); }
+.cell.redstone.corner.west { transform: rotate(180deg); }
+
+/* T-Junction */
+.cell.redstone.tjunction::before {
+    width: 100%;
+    height: 20%;
+    top: 40%;
+    left: 0;
+}
+
+.cell.redstone.tjunction::after {
+    width: 20%;
+    height: 40%;
+    left: 40%;
+    top: 0;
+}
+
+.cell.redstone.tjunction.east { transform: rotate(90deg); }
+.cell.redstone.tjunction.south { transform: rotate(180deg); }
+.cell.redstone.tjunction.west { transform: rotate(270deg); }
+
+/* Cross */
+.cell.redstone.cross::before {
+    width: 100%;
+    height: 20%;
+    top: 40%;
+    left: 0;
+}
+
+.cell.redstone.cross::after {
+    width: 20%;
+    height: 100%;
+    left: 40%;
+    top: 0;
+}
+
+.cell.torch:before {
+    content: '';
+    position: absolute;
+    width: 20%;
+    height: 60%;
+    background-color: #ffaa00;
+    top: 20%;
+    left: 40%;
+    box-shadow: 0 0 10px orange;
+}
+
+
+
+.cell:hover {
+    background-color: #ddd;
+}
+
+
+
+#toolbar {
+    position: fixed;       
+    top: 25%;             
+    right: 35px;             
+    flex-direction: column;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;        
+}
+
+#toolbar button {
+    background-color: #eee;
+    border: 1px solid #ccc;
+   
+    width: 75px;
+    height: 75px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-weight: bold;
+}
+
+#toolbar button:hover {
+    background-color: #ddd;
+    transform: scale(1.05);
+}
+
+#toolbar button.selected {
+    background-color: #ffcc00;
+    border-color: #ffaa00;
+}
+
+#toolbar button img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}

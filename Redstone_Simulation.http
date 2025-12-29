@@ -1,0 +1,6 @@
+@Redstone_Simulation_HostAddress = http://localhost:5222
+
+GET {{Redstone_Simulation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
