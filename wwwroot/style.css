@@ -14,12 +14,25 @@ body {
     overflow: hidden;
 }
 
+#viewport {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    cursor: grab;
+}
+
+#viewport.dragging {
+    cursor: grabbing;
+}
+
 #grid {
     display: grid;
     grid-template-columns: repeat(100, 80px); 
     grid-template-rows: repeat(100, 80px);
     justify-content: center;
     width: 100%;
+    transform-origin: top left;
+    will-change: transform;
 }
 
 .cell {
@@ -41,7 +54,7 @@ body {
 .cell.redstone::after {
     content: '';
     position: absolute;
-    background-color: rgb(calc(100 + var(--power) * 14), 0, 0);
+    background-color: rgb(calc(100 + var(--power) * 10), 0, 0);
 }
 
 .cell.redstone.idle::before {
@@ -127,6 +140,18 @@ body {
     top: 0;
 }
 
+.cell.redstoneblock {
+    background: linear-gradient(
+        135deg,
+        #7a0000,
+        #b00000 40%,
+        #7a0000
+    );
+    border: 1px solid #4a0000;
+    box-shadow:
+        inset 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
 .cell.torch:before {
     content: '';
     position: absolute;
@@ -135,13 +160,125 @@ body {
     background-color: #ffaa00;
     top: 20%;
     left: 40%;
-    box-shadow: 0 0 10px orange;
+    box-shadow: 0 0 10px rgba(255, 165, 0, calc(var(--power) / 15));
+}
+
+.cell.block {
+    background-color: rgb(143, 119, 72);
+    --power: 0
+}
+
+.cell.lamp {
+    background-color: #666; 
+    border-radius: 4px;
+}
+
+.cell.lamp::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 160, calc(var(--power) / 15));
+    box-shadow: 0 0 12px rgba(255, 255, 160, calc(var(--power) / 15));
+}
+
+.cell.lever {
+    position: relative;
+}
+
+/* Lever handle */
+.cell.lever:before {
+    content: '';
+    position: absolute;
+    width: 20%;
+    height: 60%;
+    background-color: #AAAAAA; /* handle */
+    top: 20%;
+    left: 40%;
+    transition: top 0.1s; /* smooth movement if needed */
+}
+
+/* Lever base box */
+.cell.lever:after {
+    content: '';
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    background-color: #8B4513; /* brown base */
+    left: 40%;
+    top: calc( var(--power) / 15 * 50% + 20%); 
+    transition: top 0.1s;
 }
 
 
 
+.cell.repeater {
+    position: relative;
+    background-color: #AAAAAA; 
+    border-radius: 3px;
+}
+
+.cell.repeater:before,
+.cell.repeater:after {
+    content: '';
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    background-color: #faa; 
+    border-radius: 50%;
+    top: 40%; 
+}
+
+
+.cell.repeater:before { left: 10%; }
+.cell.repeater:after  { left: 40%; }
+
+
+.cell.repeater span {
+    position: absolute;
+    top: 50%;  
+    left: 50%;
+    width: 60%;
+    height: 20%;
+    background-color: rgba(255,0,0, calc(var(--power)/15));
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
+}
+
+
+
+.cell.comparator {
+    position: relative;
+    background-color: #AAAAAA; 
+    border-radius: 3px;
+}
+
+.cell.comparator:before,
+.cell.comparator:after,
+.cell.comparator span {
+    content: '';
+    position: absolute;
+    width: 15%;
+    height: 15%;
+    background-color: #faa; /* torches */
+    border-radius: 50%;
+    top: 40%; /* center vertically */
+}
+
+/* Input torches (left) */
+.cell.comparator:before { left: 10%; }
+.cell.comparator:after  { left: 40%; }
+
+/* Output torch (right) */
+.cell.comparator span {
+    left: 75%;
+    background-color: rgba(255,0,0, calc(var(--power)/15));
+}
+
+
+
+
 .cell:hover {
-    background-color: #ddd;
+    filter: brightness(0.8); /* slightly brighter without touching color */
 }
 
 

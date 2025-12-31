@@ -1,14 +1,19 @@
 using Redstone_Simulation.Models.Interfaces;
 using Redstone_Simulation.Models;
-public class Repeater: IObject, ISimulatable
+using Redstone_Simulation.Helpers;
+public class Repeater: IObject
 {
     public string Id => "Repeater";
 
     public Orientation? Facing { get; set; }
     public Shape Shape { get; set; }
     public HashSet<Direction> Connections { get; set; } 
-    public int DelayTicks { get; set; } = 2; // 1–4 redstone ticks
+    public int DelayTicks { get; set; } = 1; // 1–4 redstone ticks
     public int Strength { get; set; }
+
+    public Direction InputSide => Facing!.Value.ToDirection().Opposite();
+    public Direction OutputSide => Facing!.Value.ToDirection();
+
 
     private int? scheduledTick = null;
     private int pendingStrength = 0;
@@ -17,14 +22,15 @@ public class Repeater: IObject, ISimulatable
     {
         Strength = 0;
         Connections = new HashSet<Direction>();
-        Shape = Shape.Straight;
-        Facing = Orientation.North;
+        Shape = Shape.Idle;
+        Facing = Orientation.East;
     }
 
     public void SetConnections(HashSet<Direction> connections)
     {
         Connections.Clear();
-        Connections.UnionWith(connections);
+        Connections.Add(InputSide);
+        Connections.Add(OutputSide);
     }
 
     public void ReceiveSignal(int inputStrength, int currentTick)
@@ -43,10 +49,16 @@ public class Repeater: IObject, ISimulatable
         }
     }
 
-    private bool CheckInputPower()
+    public void Toggle() { DelayTicks = (DelayTicks % 4) + 1; }
+
+    public void Rotate()
     {
-        // Logic to check if the input side is powered
-        // This is a placeholder and should be replaced with actual grid checking logic
-        return false;
+        Facing = Facing switch
+        {
+            Orientation.North => Orientation.East,
+            Orientation.East => Orientation.South,
+            Orientation.South => Orientation.West,
+            _ => Orientation.North
+        };
     }
 }

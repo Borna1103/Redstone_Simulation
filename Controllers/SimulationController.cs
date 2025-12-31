@@ -26,6 +26,12 @@ namespace Redstone_Simulation.Controllers
             {
                 "Redstone" => new Redstone(),
                 "Torch" => new Torch(),
+                "Lever" => new Lever(),
+                "RedstoneBlock" => new RedstoneBlock(),
+                "Block" => new Block(),
+                "Repeater" => new Repeater(),
+                "Comparator" => new Comparator(),
+                "Lamp" => new Lamp(),
                 _ => null
             };
 
@@ -81,6 +87,20 @@ namespace Redstone_Simulation.Controllers
             return Ok(CurrentGridState());
         }
 
+        [HttpPost("toggle")]
+        public IActionResult Toggle([FromBody] ToggleRequest req)
+        {
+            try
+            {
+                _grid.Toggle(req.X, req.Y);
+                return Ok();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         public List<CellUpdate> CurrentGridState()
         {
@@ -107,7 +127,7 @@ namespace Redstone_Simulation.Controllers
         }
 
         
-
+    public record ToggleRequest(int X, int Y);
     public record PlaceRequest(int X, int Y, string Type);
     public record RemoveRequest(int X, int Y);
 

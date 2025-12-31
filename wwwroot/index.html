@@ -8,33 +8,37 @@
         <script src="script.js" defer></script>
     </head>
     <body>
-        <div id="toolbar">
-            <button data-type="Redstone" class="selected">
-                <img src="images/redstone.webp" alt="Redstone">
+        <div id="viewport">
+            <div id="toolbar">
+                <button data-type="Redstone" class="selected">
+                    <img src="images/redstone.webp" alt="Redstone">
+                </button>
+                <button data-type="Torch">
+                    <img src="images/torch.webp" alt="Torch">
+                </button>
+                <button data-type="Lever">
+                    <img src="images/lever.webp" alt="Lever">
+                </button>
+                <button data-type="Repeater">
+                    <img src="images/repeater.webp" alt="Repeater">
+                </button>
+                <button data-type="Comparator">
+                    <img src="images/comparator.webp" alt="Comparator">
+                </button>
+                <button data-type="RedstoneBlock">
+                    <img src="images/redstoneblock.webp" alt="RedstoneBlock">
+                </button>
+                <button data-type="Block">
+                    <img src="images/block.webp" alt="Block">
+                </button>
+                <button data-type="Lamp">
+                    <img src="images/lamp.webp" alt="Lamp">
+                </button>
+            </div>
+            <button id="clear-button">
+                Clear Grid
             </button>
-            <button data-type="Torch">
-                <img src="images/torch.webp" alt="Torch">
-            </button>
-            <button data-type="Repeater">
-                <img src="images/repeater.webp" alt="Repeater">
-            </button>
-            <button data-type="Comparator">
-                <img src="images/comparator.webp" alt="Comparator">
-            </button>
-            <button data-type="RedstoneBlock">
-                <img src="images/redstoneblock.webp" alt="RedstoneBlock">
-            </button>
-            <button data-type="Block">
-                <img src="images/block.webp" alt="Block">
-            </button>
-            <button data-type="Lamp">
-                <img src="images/lamp.webp" alt="Lamp">
-            </button>
+            <div id="grid"></div>
         </div>
-        <button id="clear-button">
-            Clear Grid
-        </button>
-        <div id="grid"></div>
-        
     </body>
 </html>

@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using Redstone_Simulation.Models.Interfaces;
 using Redstone_Simulation.Models;
+using System.Runtime.CompilerServices;
 namespace Redstone_Simulation.Models
 {
     public class Torch : IObject
@@ -26,6 +27,5 @@ namespace Redstone_Simulation.Models
             Connections.UnionWith(connections);
         }
 
-        
     }
 }

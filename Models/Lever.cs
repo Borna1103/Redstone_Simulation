@@ -3,16 +3,16 @@ using Redstone_Simulation.Models.Interfaces;
 using Redstone_Simulation.Models;
 namespace Redstone_Simulation.Models
 {
-    public class Lamp : IObject
+    public class Lever : IObject
     {
-        public string Id => "Lamp";
+        public string Id => "Lever";
         public int Strength { get; set; }
         public Shape Shape { get; set; }
         public Orientation? Facing { get; set; }
 
         public HashSet<Direction> Connections { get; set; }
 
-        public Lamp()
+        public Lever()
         {
             Strength = 0;
             Shape = Shape.Idle;
@@ -24,6 +24,18 @@ namespace Redstone_Simulation.Models
         {
             Connections.Clear();
             Connections.UnionWith(connections);
+        }
+
+        public void Toggle()
+        {
+            if (Strength > 0)
+            {
+                Strength = 0;
+            }
+            else
+            {
+                Strength = 15;
+            }
         }
     }
 }
