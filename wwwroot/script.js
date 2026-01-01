@@ -11,7 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const MAX_SCALE = 2.5;
 
     const GRID_SIZE = 100;      
-    const CELL_SIZE = 32;       
+    const CELL_SIZE = 40;       
     const GRID_PX = GRID_SIZE * CELL_SIZE;
 
     let isPanning = false;
@@ -59,6 +59,11 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    translateX = (viewport.clientWidth - GRID_PX * scale) / 2;
+    translateY = (viewport.clientHeight - GRID_PX * scale) / 2;
+    applyTransform();
+
+
 
     function applyTransform() {
         grid.style.transform =
@@ -69,11 +74,23 @@ window.addEventListener('DOMContentLoaded', () => {
         const viewW = viewport.clientWidth;
         const viewH = viewport.clientHeight;
 
-        const scaledW = GRID_PX * scale;
-        const scaledH = GRID_PX * scale;
+        const scaledW = GRID_SIZE * CELL_SIZE * scale;
+        const scaledH = GRID_SIZE * CELL_SIZE * scale;
 
-        translateX = Math.min(0, Math.max(viewW - scaledW, translateX));
-        translateY = Math.min(0, Math.max(viewH - scaledH, translateY));
+        // Horizontal
+        if (scaledW > viewW) {
+            translateX = Math.min(0, Math.max(viewW - scaledW, translateX));
+        } else {
+            // Grid smaller than viewport: center it
+            translateX = (viewW - scaledW) / 2;
+        }
+
+        // Vertical
+        if (scaledH > viewH) {
+            translateY = Math.min(0, Math.max(viewH - scaledH, translateY));
+        } else {
+            translateY = (viewH - scaledH) / 2;
+        }
     }
 
     viewport.addEventListener('mousedown', e => {
@@ -100,9 +117,31 @@ window.addEventListener('DOMContentLoaded', () => {
         lastX = e.clientX;
         lastY = e.clientY;
 
-        clampPan();
+        clampPan();      // ← clamp after dragging
         applyTransform();
     });
+
+    viewport.addEventListener('wheel', e => {
+        e.preventDefault();
+
+        const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+        const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * zoomFactor));
+
+        const rect = viewport.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const worldX = (mouseX - translateX) / scale;
+        const worldY = (mouseY - translateY) / scale;
+
+        scale = newScale;
+
+        translateX = mouseX - worldX * scale;
+        translateY = mouseY - worldY * scale;
+
+        clampPan();      // ← clamp after zooming
+        applyTransform();
+    }, { passive: false });
 
     
 
@@ -144,8 +183,8 @@ window.addEventListener('DOMContentLoaded', () => {
         for (let c = 0; c < cols; c++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            cell.dataset.x = r;
-            cell.dataset.y = c;
+            cell.dataset.y = r;
+            cell.dataset.x = c;
             cell.dataset.hasObj = 'false';
             cell.dataset.toggleAttached = 'false';
             grid.appendChild(cell);

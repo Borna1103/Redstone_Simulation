@@ -1,10 +1,10 @@
 using Redstone_Simulation.Helpers;
-using Redstone_Simulation.Models;
 using Redstone_Simulation.Models.Interfaces;
 using Redstone_Simulation.DTOs;
-using System.Runtime.Serialization;
-using System.Linq.Expressions;
-using System.Security.AccessControl;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
 namespace Redstone_Simulation.Models
 {
     public class Grid
@@ -18,15 +18,14 @@ namespace Redstone_Simulation.Models
         {
             Rows = rows;
             Cols = cols;
-            Cells = new IObject[rows, cols];
+            Cells = new IObject[cols, rows]; 
         }
 
+        // x = column, y = row
         public void PlaceObject(int x, int y, IObject obj)
         {
-            if (!InBounds(x,y))
-            {
+            if (!InBounds(x, y))
                 throw new ArgumentOutOfRangeException("Coordinates are out of grid bounds.");
-            }
 
             Cells[x, y] = obj;
             
@@ -36,22 +35,18 @@ namespace Redstone_Simulation.Models
                 var (dx, dy) = DirectionHelper.Offset(d);
                 int nx = x + dx;
                 int ny = y + dy;
-                if (InBounds(nx, ny) && Cells[nx, ny] is Redstone neighbor)
-                { 
+                if (InBounds(nx, ny) && Cells[nx, ny] is Redstone)
                     UpdateGrid(nx, ny);
-                }
             }
         }
 
         public void RemoveObject(int x, int y)
         {
-            if (!InBounds(x,y))
-            {
+            if (!InBounds(x, y))
                 throw new ArgumentOutOfRangeException("Coordinates are out of grid bounds.");
-            }
 
             Cells[x, y] = null;
-            
+
             UpdateGrid(x, y);
 
             foreach (Direction d in Enum.GetValues(typeof(Direction)))
@@ -60,10 +55,8 @@ namespace Redstone_Simulation.Models
                 int nx = x + dx;
                 int ny = y + dy;
 
-                if (InBounds(nx, ny) && Cells[nx, ny] is Redstone neighbor)
-                { 
+                if (InBounds(nx, ny) && Cells[nx, ny] is Redstone)
                     UpdateGrid(nx, ny);
-                }
             }
         }
 
@@ -95,19 +88,10 @@ namespace Redstone_Simulation.Models
                         continue;
                     }
 
-                    // if (obj is Repeater repeater)
-                    // {
-                    //     // Only accept signal from input side
-                    //     if (d != repeater.InputSide) continue;
-
-                    //     repeater.ReceiveSignal(s, (int)Tick);
-                    //     continue;
-                    // }
-
-                    
                     if (obj is Torch or Lever or RedstoneBlock or Comparator) continue;
-                    if(prev is Block || prev is Lamp) continue;
-                    
+                    if (prev is Block || prev is Lamp) continue;
+                    if (prev is Comparator cmp && d != cmp.OutputSide) continue;
+
                     if (obj.Strength < s - 1)
                     {
                         obj.Strength = s - 1;
@@ -121,98 +105,86 @@ namespace Redstone_Simulation.Models
         {
             Tick++;
 
-            // Set all non powerblocks to strength 0
+            // Reset non-power objects
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
-                    if (Cells[r, c] == null) continue;
-                    if (Cells[r, c] is not (Torch or Lever or RedstoneBlock)) Cells[r, c]!.Strength = 0;
+                    if (Cells[c, r] == null) continue;
+                    if (Cells[c, r] is not (Torch or Lever or RedstoneBlock))
+                        Cells[c, r]!.Strength = 0;
                 }
             }
 
+            // Tick repeaters
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
-                    if (Cells[r, c] is Repeater repeater)
-                    {
+                    if (Cells[c, r] is Repeater repeater)
                         repeater.OnTick((int)Tick);
-                    }
                 }
             }
 
-           
-
-
-            // Repower all blocks
+            // Propagate power sources
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
-                    IObject obj = Cells[r, c];
+                    var obj = Cells[c, r];
                     if (obj == null) continue;
 
                     if ((obj is Torch or Lever or RedstoneBlock) && obj.Strength > 0)
-                    {
-                        PropagateFrom(r, c, obj.Strength);
-                    }
+                    PropagateFrom(c, r, obj.Strength); 
                 }
             }
 
+            // Handle comparators
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
-                    if (Cells[r, c] is not Comparator cmp) continue;
+                    if (Cells[c, r] is not Comparator cmp) continue;
 
-                    int rear = GetStrengthFrom(r, c, cmp.RearSide);
-                    int left = GetStrengthFrom(r, c, cmp.LeftSide);
-                    int right = GetStrengthFrom(r, c, cmp.RightSide);
+                    int rear = GetStrengthFrom(c, r, cmp.RearSide);
+                    int left = GetStrengthFrom(c, r, cmp.LeftSide);
+                    int right = GetStrengthFrom(c, r, cmp.RightSide);
 
                     cmp.Strength = cmp.ComputeOutput(rear, left, right);
                     if (cmp.Strength <= 0) continue;
 
-                    var (dx, dy) = DirectionHelper.Offset(Direction.East);
-                    int nx = r + dx;
-                    int ny = c + dy;
 
-                    if (InBounds(nx, ny))
-                        PropagateFrom(nx, ny, cmp.Strength );
+                    
+                    PropagateFrom(c, r, cmp.Strength);
                 }
             }
 
-
-            // Turn all powered redstone off
+            // Update torches
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
-                    if (Cells[r, c] is Torch torch)
-                    {
-                        torch.Strength = IsAdjacentBlockPowered(r, c) ? 0 : 15;
-                    }
-                    
+                    if (Cells[c, r] is Torch torch)
+                        torch.Strength = IsAdjacentBlockPowered(c, r) ? 0 : 15;
                 }
             }
         }
 
         public void Toggle(int x, int y)
         {
-            IObject obj = Cells[x, y];
+            var obj = Cells[x, y];
             if (obj == null) return;
-
             obj.Toggle();
         }
-        
+
         public bool InBounds(int x, int y)
         {
-            return x >= 0 && x < Rows && y >= 0 && y < Cols;
+            return x >= 0 && x < Cols && y >= 0 && y < Rows;
         }
 
         private void UpdateGrid(int x, int y)
         {
-            var rs = Cells[x, y] as IObject;
+            var rs = Cells[x, y];
             if (rs == null) return;
 
             var connections = new HashSet<Direction>();
@@ -222,7 +194,8 @@ namespace Redstone_Simulation.Models
                 int nx = x + dx;
                 int ny = y + dy;
 
-                if (InBounds(nx, ny) && Cells[nx, ny] is IObject) connections.Add(d);
+                if (InBounds(nx, ny) && Cells[nx, ny] != null)
+                    connections.Add(d);
             }
             rs.SetConnections(connections);
         }
@@ -236,7 +209,7 @@ namespace Redstone_Simulation.Models
                 int ny = y + dy;
 
                 if (!InBounds(nx, ny)) continue;
-                IObject obj = Cells[nx,ny]!;
+                var obj = Cells[nx, ny];
                 if (obj == null) continue;
                 if (obj is Block or Lamp && obj.Strength > 0)
                     return true;
@@ -244,17 +217,16 @@ namespace Redstone_Simulation.Models
             return false;
         }
 
-        private int GetStrengthFrom(int r, int c, Direction d)
+        private int GetStrengthFrom(int x, int y, Direction d)
         {
             var (dx, dy) = DirectionHelper.Offset(d);
-            int nx = r + dx;
-            int ny = c + dy;
+            int nx = x + dx;
+            int ny = y + dy;
 
             if (!InBounds(nx, ny) || Cells[nx, ny] == null)
                 return 0;
 
             return Cells[nx, ny]!.Strength;
         }
-
     }
 }

@@ -110,12 +110,12 @@ namespace Redstone_Simulation.Controllers
             {
                 for (int c = 0; c < _grid.Cols; c++)
                 {
-                    var obj = _grid.Cells[r, c];
+                    var obj = _grid.Cells[c, r];
                     if (obj == null) continue;
 
                     cells.Add(new CellUpdate(
-                        r,
                         c,
+                        r,
                         obj.Id,
                         obj.Shape.ToString(),
                         obj.Facing?.ToString(),

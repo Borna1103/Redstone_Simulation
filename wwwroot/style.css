@@ -57,6 +57,11 @@ body {
     will-change: transform;
     top: 0;
     left: 0;
+    background-color: #fff;
+    background-image: 
+        linear-gradient(to right, rgba(200,200,200,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(200,200,200,0.05) 1px, transparent 1px);
+    background-size: 40px 40px; /* match cell size if you want */
 }
 
 .cell {
@@ -372,22 +377,25 @@ body {
 #ui-left h1 {
   font-size: 16px;
   margin-bottom: 4px;
-  
+  font-weight: normal;
 }
 
 #ui-left .subtitle {
   opacity: 0.8;
   margin-bottom: 10px;
+  font-weight: normal;
 }
 
 .ui-box {
   margin-top: 12px;
+  font-weight: normal;
 }
 
 .ui-box h2 {
   font-size: 11px;
   color: #ffcc00;
   margin-bottom: 4px;
+  font-weight: normal;
 }
 
 #tooltip {
