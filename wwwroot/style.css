@@ -3,12 +3,33 @@
     -ms-user-select: none; /* IE 10+ */
     user-select: none; /* Standard syntax */
     -webkit-tap-highlight-color: transparent;
+     -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: never;
+    text-rendering: optimizeSpeed;
+    font-family: 'Minecraft', system-ui, monospace;
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+  --ui-bg: #2c2c2c;
+  --ui-border: #1a1a1a;
+  --ui-text: #f5f5f5;
+  --ui-accent: #ffcc00;
+}
+
+@font-face {
+  font-family: 'Minecraft';
+  src: url('/fonts/Minecraft.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 body {
     margin: 0;
     background-color: #f0f0f0;
-    font-family: system-ui;
     text-align: center;
     height: 100vh;
     overflow: hidden;
@@ -18,6 +39,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    position: relative;
     cursor: grab;
 }
 
@@ -33,6 +55,8 @@ body {
     width: 100%;
     transform-origin: top left;
     will-change: transform;
+    top: 0;
+    left: 0;
 }
 
 .cell {
@@ -205,7 +229,7 @@ body {
     height: 20%;
     background-color: #8B4513; /* brown base */
     left: 40%;
-    top: calc( var(--power) / 15 * 50% + 20%); 
+    top: calc( var(--power) / 15 * 40% + 20%); 
     transition: top 0.1s;
 }
 
@@ -281,17 +305,25 @@ body {
     filter: brightness(0.8); /* slightly brighter without touching color */
 }
 
-
+#toolbar,
+#ui-left,
+#clear-button,
+#tooltip {
+  position: fixed;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: 1000;
+}
 
 #toolbar {
-    position: fixed;       
     top: 10%;             
     right: 35px;             
     flex-direction: column;
     border-radius: 8px;
     display: flex;
-    gap: 10px;
-    z-index: 1000;        
+    gap: 10px;      
 }
 
 #toolbar button {
@@ -303,7 +335,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
-    font-weight: bold;
+    
 }
 
 #toolbar button:hover {
@@ -322,6 +354,73 @@ body {
     object-fit: contain;
 }
 
+#ui-left {
+  top: 20px;
+  left: 20px;
+  width: 260px;
+  padding: 14px;
+
+  background: linear-gradient(#3a3a3a, #2a2a2a);
+  border: 4px solid #1a1a1a;
+  box-shadow: inset 0 0 0 2px #555;
+  opacity: 75%;
+  
+  color: #eee;
+  font-size: 12px;
+}
+
+#ui-left h1 {
+  font-size: 16px;
+  margin-bottom: 4px;
+  
+}
+
+#ui-left .subtitle {
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.ui-box {
+  margin-top: 12px;
+}
+
+.ui-box h2 {
+  font-size: 11px;
+  color: #ffcc00;
+  margin-bottom: 4px;
+}
+
+#tooltip {
+  padding: 6px 8px;
+  background: rgba(20, 20, 20, 0.85);;
+  border: 2px solid rgba(120, 120, 120, 0.8);
+  box-shadow: inset 0 0 0 2px rgba(40, 40, 40, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+  height: 100px;
+  width: 200px;
+  color: white;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.08s;
+}
+
+.tooltip-content {
+  text-align: center;
+  line-height: 1.4;
+}
+
+#tooltip .title {
+  display: block;
+  margin-bottom: 4px;
+  color: #ffcc00;
+  font-size: 18px;
+}
+
+
 #clear-button {
     position: fixed;
     bottom: 35px;
@@ -332,7 +431,7 @@ body {
     border: none;
     border-radius: 5px;
     color: White;
-    font-weight: bold;
+    font-size: 16px;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
     z-index: 1000;

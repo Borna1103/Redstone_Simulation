@@ -11,8 +11,8 @@ public class Repeater: IObject
     public int DelayTicks { get; set; } = 1; // 1–4 redstone ticks
     public int Strength { get; set; }
 
-    public Direction InputSide => Facing!.Value.ToDirection().Opposite();
-    public Direction OutputSide => Facing!.Value.ToDirection();
+    // public Direction InputSide => Facing!.Value.ToDirection().Opposite();
+    // public Direction OutputSide => Facing!.Value.ToDirection();
 
 
     private int? scheduledTick = null;
@@ -29,8 +29,8 @@ public class Repeater: IObject
     public void SetConnections(HashSet<Direction> connections)
     {
         Connections.Clear();
-        Connections.Add(InputSide);
-        Connections.Add(OutputSide);
+        // Connections.Add(InputSide);
+        // Connections.Add(OutputSide);
     }
 
     public void ReceiveSignal(int inputStrength, int currentTick)

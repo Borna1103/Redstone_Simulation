@@ -87,7 +87,7 @@ namespace Redstone_Simulation.Models
                     IObject obj = Cells[nx, ny]!;
                     IObject prev = Cells[cx, cy]!;
                     if (obj == null) continue;
-                    
+
                     if ((obj is Block || obj is Lamp) && prev is Torch) continue;
                     if ((obj is Block || obj is Lamp) && prev is Redstone rs && rs.Strength > 0)
                     {
@@ -95,19 +95,19 @@ namespace Redstone_Simulation.Models
                         continue;
                     }
 
-                    if (obj is Repeater repeater)
-                    {
-                        // Only accept signal from input side
-                        if (d != repeater.InputSide) continue;
+                    // if (obj is Repeater repeater)
+                    // {
+                    //     // Only accept signal from input side
+                    //     if (d != repeater.InputSide) continue;
 
-                        repeater.ReceiveSignal(s, (int)Tick);
-                        continue;
-                    }
+                    //     repeater.ReceiveSignal(s, (int)Tick);
+                    //     continue;
+                    // }
 
-                    if (obj is Torch or Lever or RedstoneBlock) continue;
+                    
+                    if (obj is Torch or Lever or RedstoneBlock or Comparator) continue;
                     if(prev is Block || prev is Lamp) continue;
                     
-
                     if (obj.Strength < s - 1)
                     {
                         obj.Strength = s - 1;
@@ -121,13 +121,13 @@ namespace Redstone_Simulation.Models
         {
             Tick++;
 
+            // Set all non powerblocks to strength 0
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
                     if (Cells[r, c] == null) continue;
                     if (Cells[r, c] is not (Torch or Lever or RedstoneBlock)) Cells[r, c]!.Strength = 0;
-
                 }
             }
 
@@ -142,6 +142,10 @@ namespace Redstone_Simulation.Models
                 }
             }
 
+           
+
+
+            // Repower all blocks
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
@@ -153,21 +157,33 @@ namespace Redstone_Simulation.Models
                     {
                         PropagateFrom(r, c, obj.Strength);
                     }
-
-                    if (obj is Repeater repeater && repeater.Strength > 0)
-                    {
-                        var (dx, dy) = DirectionHelper.Offset(repeater.OutputSide);
-                        int nx = r + dx;
-                        int ny = c + dy;
-
-                        if (InBounds(nx, ny))
-                        {
-                            PropagateFrom(nx, ny, repeater.Strength);
-                        }
-                    }
                 }
             }
 
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    if (Cells[r, c] is not Comparator cmp) continue;
+
+                    int rear = GetStrengthFrom(r, c, cmp.RearSide);
+                    int left = GetStrengthFrom(r, c, cmp.LeftSide);
+                    int right = GetStrengthFrom(r, c, cmp.RightSide);
+
+                    cmp.Strength = cmp.ComputeOutput(rear, left, right);
+                    if (cmp.Strength <= 0) continue;
+
+                    var (dx, dy) = DirectionHelper.Offset(Direction.East);
+                    int nx = r + dx;
+                    int ny = c + dy;
+
+                    if (InBounds(nx, ny))
+                        PropagateFrom(nx, ny, cmp.Strength );
+                }
+            }
+
+
+            // Turn all powered redstone off
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
@@ -176,6 +192,7 @@ namespace Redstone_Simulation.Models
                     {
                         torch.Strength = IsAdjacentBlockPowered(r, c) ? 0 : 15;
                     }
+                    
                 }
             }
         }
@@ -188,7 +205,6 @@ namespace Redstone_Simulation.Models
             obj.Toggle();
         }
         
-
         public bool InBounds(int x, int y)
         {
             return x >= 0 && x < Rows && y >= 0 && y < Cols;
@@ -225,11 +241,20 @@ namespace Redstone_Simulation.Models
                 if (obj is Block or Lamp && obj.Strength > 0)
                     return true;
             }
-
             return false;
         }
 
-        
-        
+        private int GetStrengthFrom(int r, int c, Direction d)
+        {
+            var (dx, dy) = DirectionHelper.Offset(d);
+            int nx = r + dx;
+            int ny = c + dy;
+
+            if (!InBounds(nx, ny) || Cells[nx, ny] == null)
+                return 0;
+
+            return Cells[nx, ny]!.Strength;
+        }
+
     }
 }

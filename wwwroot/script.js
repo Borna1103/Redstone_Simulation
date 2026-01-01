@@ -23,6 +23,43 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const TICK_MS = 100;
 
+
+    const tooltip = document.getElementById('tooltip');
+    const selectedText = document.getElementById('selected-item');
+
+    
+    buttons.forEach(button => {
+        const name = button.dataset.type;
+        const desc = button.dataset.desc || '';
+
+        button.addEventListener('mouseenter', e => {
+            tooltip.innerHTML = `
+                <div class="tooltip-content">
+                    <div class="title">${name}</div>
+                    <div>${desc}</div>
+                </div>
+                `;
+            tooltip.style.opacity = '1';
+        });
+
+        button.addEventListener('mousemove', e => {
+            const tooltipWidth = tooltip.offsetWidth;
+            const padding = 12;
+
+            tooltip.style.left = (e.clientX - tooltipWidth - padding) + 'px';
+            tooltip.style.top = (e.clientY + padding) + 'px';
+        });
+
+        button.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+        });
+
+        button.addEventListener('click', () => {
+            selectedText.textContent = name;
+        });
+    });
+
+
     function applyTransform() {
         grid.style.transform =
             `translate(${translateX}px, ${translateY}px) scale(${scale})`;
@@ -110,10 +147,12 @@ window.addEventListener('DOMContentLoaded', () => {
             cell.dataset.x = r;
             cell.dataset.y = c;
             cell.dataset.hasObj = 'false';
-            cell.toggleAttached = false
+            cell.dataset.toggleAttached = 'false';
             grid.appendChild(cell);
         }
     }
+
+    
 
     fetchInitialState();
     setInterval(fetchInitialState, TICK_MS);
@@ -170,6 +209,32 @@ window.addEventListener('DOMContentLoaded', () => {
         
     });
 
+    grid.addEventListener('click', async (e) => {
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+
+        // Only toggle levers, repeaters, comparators
+        if (!cell.classList.contains('lever') &&
+            !cell.classList.contains('repeater') &&
+            !cell.classList.contains('comparator')) return;
+
+        const x = Number(cell.dataset.x);
+        const y = Number(cell.dataset.y);
+
+        try {
+            const response = await fetch('/api/simulation/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x, y })
+            });
+            if (!response.ok) return;
+
+            updateGrid(await response.json());
+        } catch (err) {
+            console.error('Toggle failed:', err);
+        }
+    });
+
     grid.addEventListener('contextmenu', async (e) => {
         e.preventDefault();
         const cell = e.target.closest('.cell');
@@ -210,37 +275,8 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function AddToggleEvent() {
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => {
-            const type = cell.classList.contains('repeater') || 
-                        cell.classList.contains('comparator') || 
-                        cell.classList.contains('lever');
-            if (!type) return;
-
-            if (cell.dataset.toggleAttached === 'true') return;
-            cell.dataset.toggleAttached = 'true';
-
-            cell.addEventListener('click', async () => {
-                const x = Number(cell.dataset.x);
-                const y = Number(cell.dataset.y);
-
-                try {
-                    const response = await fetch('/api/simulation/toggle', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ x, y })
-                    });
-
-                    if (!response.ok) return;
-
-                    updateGrid(await response.json());
-                } catch (err) {
-                    console.error('Toggle failed:', err);
-                }
-            });
-        });
-    }
+    
+    
 
 });
 

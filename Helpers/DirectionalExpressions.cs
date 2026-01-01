@@ -5,7 +5,7 @@ namespace Redstone_Simulation.Helpers
 {
     public static class DirectionExtensions
     {
-        public static Direction Opposite(this Direction d) => d switch
+        public static Direction Opposite(Direction d) => d switch
         {
             Direction.North => Direction.South,
             Direction.South => Direction.North,
@@ -14,7 +14,7 @@ namespace Redstone_Simulation.Helpers
             _ => d
         };
 
-        public static Direction ToDirection(this Orientation o) => o switch
+        public static Direction ToDirection(Orientation o) => o switch
         {
             Orientation.North => Direction.North,
             Orientation.South => Direction.South,

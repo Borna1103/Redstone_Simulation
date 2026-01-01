@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Redstone_Simulation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42295f5bc57e5539065d2783a25dc3f36104b4fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07c6678e4d358d5219bb1247947142b9c14ea400")]
 [assembly: System.Reflection.AssemblyProductAttribute("Redstone_Simulation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Redstone_Simulation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

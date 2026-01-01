@@ -9,36 +9,60 @@
     </head>
     <body>
         <div id="viewport">
+
+            <div id="ui-left">
+                <h1>Welcome to my Redstone Simulator</h1>
+                <p class="subtitle">Minecraft-style logic sandbox</p>
+
+                <div class="ui-box">
+                    <h2>Controls</h2>
+                    <p>
+                    🖱️ Left: Place<br>
+                    🖱️ Right: Remove<br>
+                    🖱️ Middle: Pan<br>
+                    🖱️ Scroll: Zoom
+                    </p>
+                </div>
+
+                <div class="ui-box">
+                    <h2>Selected</h2>
+                    <p id="selected-item">Redstone</p>
+                </div>
+            </div>
+            <!-- TOOLBAR (already overlay) -->
             <div id="toolbar">
-                <button data-type="Redstone" class="selected">
-                    <img src="images/redstone.webp" alt="Redstone">
+                <button data-type="Redstone" data-desc="Carries power between components" class="selected">
+                    <img src="images/redstone.webp">
                 </button>
-                <button data-type="Torch">
-                    <img src="images/torch.webp" alt="Torch">
+                <button data-type="Torch" data-desc="Constant power source. Turns off if a block is powered next to it">
+                    <img src="images/torch.webp">
                 </button>
-                <button data-type="Lever">
-                    <img src="images/lever.webp" alt="Lever">
+                <button data-type="Lever" data-desc="Toggleable power input">
+                    <img src="images/lever.webp">
                 </button>
-                <button data-type="Repeater">
-                    <img src="images/repeater.webp" alt="Repeater">
+                <button data-type="Repeater" data-desc="Delays and boosts signal. 4 settings for delay time.">
+                    <img src="images/repeater.webp">
                 </button>
-                <button data-type="Comparator">
-                    <img src="images/comparator.webp" alt="Comparator">
+                <button data-type="Comparator" data-desc="Compares signal strengths or toggle to subtract signals.">
+                    <img src="images/comparator.webp">
                 </button>
-                <button data-type="RedstoneBlock">
-                    <img src="images/redstoneblock.webp" alt="RedstoneBlock">
+                <button data-type="RedstoneBlock" data-desc="Strong constant power">
+                    <img src="images/redstoneblock.webp">
                 </button>
-                <button data-type="Block">
-                    <img src="images/block.webp" alt="Block">
+                <button data-type="Block" data-desc="Solid block. Does not carry power.">
+                    <img src="images/block.webp">
                 </button>
-                <button data-type="Lamp">
-                    <img src="images/lamp.webp" alt="Lamp">
+                <button data-type="Lamp" data-desc="Lights up when powered">
+                    <img src="images/lamp.webp">
                 </button>
             </div>
+
             <button id="clear-button">
-                Clear Grid
+                Clear
             </button>
             <div id="grid"></div>
+
+            <div id="tooltip"></div>
         </div>
     </body>
 </html>
