@@ -9,7 +9,7 @@ namespace Redstone_Simulation.Models
         public int Strength { get; set; }
         public Shape Shape { get; set; }
         public Orientation? Facing { get; set; }
-
+        public string? Mode => null;
         public HashSet<Direction> Connections { get; set; }
 
         public Lamp()

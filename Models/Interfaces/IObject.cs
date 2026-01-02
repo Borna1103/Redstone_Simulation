@@ -24,6 +24,7 @@ namespace Redstone_Simulation.Models.Interfaces
         Shape Shape { get; set; }
         Orientation? Facing { get; set; }
         public HashSet<Direction> Connections { get; set; }
+        string? Mode { get; }
         void Toggle()
         {
             // Default Implimentation

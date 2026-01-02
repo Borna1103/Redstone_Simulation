@@ -6,5 +6,6 @@ public record CellUpdate(
     string? Type,
     string? Shape,
     string? Orientation,
-    int? Strength
+    int? Strength,
+    string? Mode
 );

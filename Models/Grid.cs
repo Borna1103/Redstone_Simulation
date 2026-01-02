@@ -60,7 +60,7 @@ namespace Redstone_Simulation.Models
             }
         }
 
-        private void PropagateFrom(int x, int y, int strength)
+        public void PropagateFrom(int x, int y, int strength)
         {
             var queue = new Queue<(int x, int y, int strength)>();
             queue.Enqueue((x, y, strength));
@@ -85,6 +85,16 @@ namespace Redstone_Simulation.Models
                     if ((obj is Block || obj is Lamp) && prev is Redstone rs && rs.Strength > 0)
                     {
                         obj.Strength = 15;
+                        continue;
+                    }
+
+                    if (obj is Repeater repeater)
+                    {
+                        // Only accept power from input side
+                        if (d != repeater.InputSide)
+                            continue;
+
+                        repeater.ReceiveSignal(s, (int)Tick);
                         continue;
                     }
 
@@ -116,13 +126,54 @@ namespace Redstone_Simulation.Models
                 }
             }
 
+            // Feed repeater inputs
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    if (Cells[c, r] is not Repeater rep) continue;
+
+                    var (dx, dy) = DirectionHelper.Offset(rep.InputSide);
+                    int nx = c + dx;
+                    int ny = r + dy;
+
+                    bool powered = InBounds(nx, ny)
+                        && Cells[nx, ny]?.Strength > 0;
+
+                    rep.ReceiveInput(powered, (int)Tick);
+                }
+            }
+
+
             // Tick repeaters
             for (int r = 0; r < Rows; r++)
             {
                 for (int c = 0; c < Cols; c++)
                 {
                     if (Cells[c, r] is Repeater repeater)
-                        repeater.OnTick((int)Tick);
+                        repeater.OnTick((int)Tick, this, c, r);
+                }
+            }
+
+            // Propagate repeater outputs
+            for (int r = 0; r < Rows; r++)
+            {
+                for (int c = 0; c < Cols; c++)
+                {
+                    if (Cells[c, r] is not Repeater rep) continue;
+                    if (rep.Strength <= 0) continue;
+
+                    var (dx, dy) = DirectionHelper.Offset(rep.OutputSide);
+                    int nx = c + dx;
+                    int ny = r + dy;
+
+                    if (!InBounds(nx, ny)) continue;
+
+                    var target = Cells[nx, ny];
+                    if (target == null) continue;
+
+                    target.Strength = Math.Max(target.Strength, rep.Strength);
+                    PropagateFrom(nx, ny, rep.Strength);
                 }
             }
 

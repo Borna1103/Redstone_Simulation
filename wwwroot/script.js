@@ -143,30 +143,6 @@ window.addEventListener('DOMContentLoaded', () => {
         applyTransform();
     }, { passive: false });
 
-    
-
-    viewport.addEventListener('wheel', e => {
-        e.preventDefault();
-
-        const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-        const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * zoomFactor));
-
-        const rect = viewport.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const worldX = (mouseX - translateX) / scale;
-        const worldY = (mouseY - translateY) / scale;
-
-        scale = newScale;
-
-        translateX = mouseX - worldX * scale;
-        translateY = mouseY - worldY * scale;
-
-        clampPan();
-        applyTransform();
-    }, { passive: false });
-
     // Toolbar button click handling
     buttons.forEach(button => {
         button.addEventListener('click', () => {
@@ -175,8 +151,6 @@ window.addEventListener('DOMContentLoaded', () => {
             selectedType = button.dataset.type;
         });
     });
-
-    
 
     // Generate grid
     for (let r = 0; r < rows; r++) {
@@ -191,7 +165,6 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    
 
     fetchInitialState();
     setInterval(fetchInitialState, TICK_MS);
@@ -259,7 +232,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
         const x = Number(cell.dataset.x);
         const y = Number(cell.dataset.y);
+        if (cell.classList.contains('repeater'))
+        {
+            const delays = ["delay-0", "delay-1", "delay-2", "delay-3"];
+            let current = delays.findIndex(d => cell.classList.contains(d));
+            cell.classList.remove(delays[current]);
+            cell.classList.add(delays[(current + 1) % 4]);
+        }
 
+        if (cell.classList.contains('comparator'))
+        {
+            cell.classList.toggle("subtract");
+            cell.classList.toggle("compare");
+        }
         try {
             const response = await fetch('/api/simulation/toggle', {
                 method: 'POST',
@@ -304,6 +289,25 @@ window.addEventListener('DOMContentLoaded', () => {
                 cell.dataset.hasObj = 'true';
                 cell.className = `cell ${c.type.toLowerCase()} ${c.shape.toLowerCase()} ${c.orientation == null ? '' : c.orientation.toLowerCase()}`;
                 cell.style.setProperty('--power', c.strength );
+
+                if (c.mode) {
+                    if (c.type === 'Repeater') {
+                        cell.classList.add(`delay-${c.mode}`);
+                    }
+
+                    if (c.type === 'Comparator') {
+                        cell.classList.remove('compare', 'subtract');
+                        cell.classList.add(c.mode ?? 'compare');
+
+                        if (!cell.querySelector('.torch')) {
+                            cell.innerHTML += `
+                                <span class="torch front"></span>
+                                <span class="torch back left"></span>
+                                <span class="torch back right"></span>
+                            `;
+                        }
+                    }
+                }
             }
             else {
                 cell.dataset.hasObj = 'false';

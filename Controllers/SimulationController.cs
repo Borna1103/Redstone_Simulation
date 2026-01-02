@@ -58,7 +58,7 @@ namespace Redstone_Simulation.Controllers
             {
                 _grid.RemoveObject(req.X, req.Y);
                 var updates = CurrentGridState();
-                updates.Add(new CellUpdate(req.X, req.Y, null, null, null, null));
+                updates.Add(new CellUpdate(req.X, req.Y, null, null, null, null, null));
                 return Ok(updates);
             }
             catch (ArgumentOutOfRangeException ex)
@@ -74,7 +74,7 @@ namespace Redstone_Simulation.Controllers
             var currGrid = CurrentGridState();
             for (int i = 0; i < currGrid.Count; i++)
             {
-                currGrid[i] = new CellUpdate(currGrid[i].X, currGrid[i].Y, null, null, null, null);
+                currGrid[i] = new CellUpdate(currGrid[i].X, currGrid[i].Y, null, null, null, null, null);
             }
             _grid = new Grid(100, 100);
             return Ok(currGrid);
@@ -119,7 +119,8 @@ namespace Redstone_Simulation.Controllers
                         obj.Id,
                         obj.Shape.ToString(),
                         obj.Facing?.ToString(),
-                        obj.Strength
+                        obj.Strength,
+                        obj.Mode?.ToString()
                     ));       
                 }
             }

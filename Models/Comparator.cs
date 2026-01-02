@@ -11,7 +11,8 @@ namespace Redstone_Simulation.Models
         public Orientation? Facing { get; set; }
 
         public HashSet<Direction> Connections { get; set; }
-        public bool Mode = false;
+        private bool _subtract = false;
+        public string Mode => _subtract ? "subtract" : "compare";
 
         public Direction OutputSide => Facing switch
         {
@@ -66,7 +67,7 @@ namespace Redstone_Simulation.Models
 
         public int ComputeOutput(int rear, int left, int right)
         {
-            if (!Mode) return Compare(rear, left, right);
+            if (!_subtract) return Compare(rear, left, right);
             return Subtract(rear, left, right);
         }
 
@@ -82,7 +83,7 @@ namespace Redstone_Simulation.Models
 
         public void Toggle()
         {
-            Mode = !Mode;
+            _subtract = !_subtract;
         }
 
         
